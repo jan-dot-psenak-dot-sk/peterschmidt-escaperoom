@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room: Útek z bunkra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0e1a1f;
+      color: #e1e1e1;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1, h2 {
+      color: #76c7c0;
+    }
+    .section {
+      background: #1c2b30;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-left: 4px solid #76c7c0;
+      border-radius: 8px;
+    }
+    .task {
+      margin-top: 0.5rem;
+    }
+    .highlight {
+      color: #ffe066;
+    }
+    .input-box {
+      margin-top: 0.5rem;
+    }
+    input[type="text"] {
+      padding: 0.4rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: none;
+      width: 200px;
+    }
+    button {
+      margin-left: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 1rem;
+      background-color: #76c7c0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    #timer {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: #1c2b30;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      color: #ffe066;
+    }
+  </style>
+</head>
+<body>
+  <div id="timer">Čas: <span id="countdown">45:00</span></div>
+
+  <h1>Escape Room: Útek z vojenského bunkra</h1>
+  <p>Ste uväznení v starom vojenskom bunkri. Každá úloha vás priblíži k heslu, ktoré otvorí východ. Riešte ich postupne a dávajte si pozor – každé písmeno v šifre má svoj dôvod!</p>
+
+  <div id="tasks">
+    <!-- Tasks will be inserted here by JavaScript -->
+  </div>
+
+  <div id="result"></div>
+
+  <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+  <audio id="win-sound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+
+  <script>
+    const tasks = [
+      {
+        title: "Úloha 1: Núdzový generátor",
+        question: "Pri 6 osobách generátor vydrží 8 hodín. Teraz je vás 12. Ako dlho vydrží?",
+        answer: "4",
+        letter: "V"
+      },
+      {
+        title: "Úloha 2: SOS vysielač",
+        question: "Nastavte výkon antény na 87,5 % z 1600 W. Každý stupeň zvyšuje výkon o 25 W. Koľký stupeň nastavíte?",
+        answer: "56",
+        letter: "Ý"
+      },
+      {
+        title: "Úloha 3: Pitná voda",
+        question: "Z nádrže s 320 litrami odstráňte 1/5 kontaminovanú, 3/10 na chladenie a 15 % na hygienu. Koľko zostane na pitie?",
+        answer: "112",
+        letter: "C"
+      },
+      {
+        title: "Úloha 4: Výbušný prístup",
+        question: "Máte 70 €. Na výbušninu potrebujete 800g A (4,50 €/100g), 600g B (6,20 €/100g), 400g C (5 €/100g). Stačí vám rozpočet? Zadajte 'áno' alebo 'nie'.",
+        answer: "nie",
+        letter: "H"
+      },
+      {
+        title: "Úloha 5: Ventilácia",
+        question: "Dvaja ľudia vyčistia systém za 36 min. Vás je 9, ale efektivita nad 6 klesá o 20 % na osobu. Koľko minút to potrvá? (zaokrúhlite na 1 des. miesto)",
+        answer: "9.2",
+        letter: "O"
+      },
+      {
+        title: "Úloha 6: Delenie zásob",
+        question: "Z 90 balíčkov potravín 3/10 idú deťom, 40 % dospelým. Zvyšok rozdeľ medzi 3 seniorov. Koľko dostane každý?",
+        answer: "9",
+        letter: "D"
+      }
+    ];
+
+    const container = document.getElementById("tasks");
+    const correctSound = document.getElementById("correct-sound");
+    const winSound = document.getElementById("win-sound");
+
+    let answers = [];
+
+    tasks.forEach((task, i) => {
+      const section = document.createElement("div");
+      section.className = "section";
+      section.innerHTML = `<h2>${task.title}</h2><p class="task">${task.question}</p>
+        <div class="input-box">
+          <input type="text" id="input-${i}" placeholder="Tvoja odpoveď">
+          <button onclick="checkAnswer(${i})">OK</button>
+          <span id="feedback-${i}"></span>
+        </div>`;
+      container.appendChild(section);
+    });
+
+    function checkAnswer(index) {
+      const input = document.getElementById(`input-${index}`);
+      const feedback = document.getElementById(`feedback-${index}`);
+      if (input.value.trim().toLowerCase() === tasks[index].answer.toLowerCase()) {
+        feedback.textContent = `✔️ ${tasks[index].letter}`;
+        feedback.style.color = "#76c7c0";
+        if (!answers.includes(tasks[index].letter)) answers.push(tasks[index].letter);
+        correctSound.play();
+        input.disabled = true;
+      } else {
+        feedback.textContent = "❌ Skús znova";
+        feedback.style.color = "#ff6b6b";
+      }
+      if (answers.length === tasks.length) {
+        document.getElementById("result").textContent = `Šifra: ${answers.join('')} → Otváram dvere...`; 
+        winSound.play();
+      }
+    }
+
+    // Timer
+    let time = 45 * 60;
+    const countdown = document.getElementById("countdown");
+    setInterval(() => {
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      countdown.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      if (time > 0) time--;
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -139,7 +139,7 @@
     function checkAnswer(index) {
       const input = document.getElementById(`input-${index}`);
       const feedback = document.getElementById(`feedback-${index}`);
-      if (input.value.trim().toLowerCase() === tasks[index].answer.toLowerCase()) {
+      if (input.value.trim().toLowerCase().replaceAll(",", ".")  === tasks[index].answer.toLowerCase()) {
         feedback.textContent = `✔️ ${tasks[index].letter}`;
         feedback.style.color = "#76c7c0";
         if (!answers.includes(tasks[index].letter)) answers.push(tasks[index].letter);

@@ -75,8 +75,9 @@
 
   <div id="result"></div>
 
-  <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
-  <audio id="win-sound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+  <audio id="correct-sound" src="button-09.mp3"></audio>
+  <audio id="win-sound" src="bell-ringing-05.mp3"></audio>
+  <audio id="explosion" src="explosion-01.mp3" />
 
   <script>
     const tasks = [
@@ -152,17 +153,23 @@
       if (answers.length === tasks.length) {
         document.getElementById("result").textContent = `Šifra: ${answers.join('')} → Otváram dvere...`; 
         winSound.play();
+        clearTimeout(countdown)
       }
     }
 
     // Timer
     let time = 45 * 60;
     const countdown = document.getElementById("countdown");
-    setInterval(() => {
+    let countdownInterval = setInterval(() => {
       const minutes = Math.floor(time / 60);
       const seconds = time % 60;
       countdown.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       if (time > 0) time--;
+      if (time < 1) {
+        clearInterval(countdownInterval)
+        document.getElementById("explosion").play()
+    container.innerText = "Prehral si"
+}
     }, 1000);
   </script>
 </body>
